@@ -34,7 +34,7 @@ namespace MagicVilla_VillaAPI.Controllers
         //[ProducesResponseType(404)]
         public ActionResult<VillaDTO> GetVilla(int id)
         {
-            if(id == 2)
+            if(id == 0)
             {
                 _logger.LogError("Get Villa Error with id " + id);
                 return BadRequest();
