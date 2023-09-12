@@ -20,7 +20,7 @@ namespace MagicVilla_VillaAPI.Controllers
         public VillaAPIController(ApplicationDbContext db, IMapper mapper)
         {
             _db = db;
-            _mapper = mapper;
+            _mapper = mapper; 
         }
 
         [HttpGet]
