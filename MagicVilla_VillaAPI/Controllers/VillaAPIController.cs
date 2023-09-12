@@ -16,7 +16,7 @@ namespace MagicVilla_VillaAPI.Controllers
     public class VillaAPIController : ControllerBase
     {
         protected APIReponse _reponse;
-        private readonly IVillaRepository _dbVilla;
+        private readonly IVillaRepository _dbVilla; 
         private readonly IMapper _mapper;
 
         public VillaAPIController(IVillaRepository dbVilla, IMapper mapper)
