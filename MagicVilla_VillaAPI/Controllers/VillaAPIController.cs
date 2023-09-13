@@ -105,7 +105,7 @@ namespace MagicVilla_VillaAPI.Controllers
                 //if(VillaStore.villaList.FirstOrDefault(u => u.Name.ToLower() == createDTO.Name.ToLower()) != null)
                 if (await _dbVilla.GetAsync(u => u.Name.ToLower() == createDTO.Name.ToLower()) != null)
                 {
-                    ModelState.AddModelError("CustomError", "Villa already exists");
+                    ModelState.AddModelError("ErrorMessages", "Villa already exists");
                     _reponse.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_reponse);
                 }
@@ -121,7 +121,7 @@ namespace MagicVilla_VillaAPI.Controllers
                 //createDTO.Id = VillaStore.villaList.OrderByDescending(u => u.Id).FirstOrDefault().Id + 1;
                 //createDTO.Id = _db.Villas.OrderByDescending(u => u.Id).FirstOrDefault().Id + 1;
                 //VillaStore.villaList.Add(villaDTO);
-                var villa = _mapper.Map<Villa>(createDTO);
+                Villa villa = _mapper.Map<Villa>(createDTO);
                 //Villa model = new()
                 //{
                 //    Amenity = createDTO.Amenity,
@@ -195,7 +195,7 @@ namespace MagicVilla_VillaAPI.Controllers
         {
             try
             {
-                if (id == null || id == 0 || id != updateDTO.Id)
+                if (updateDTO == null || id == 0 || id != updateDTO.Id)
                 {
                     _reponse.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_reponse);
