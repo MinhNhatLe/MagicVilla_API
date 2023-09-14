@@ -12,20 +12,37 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+// Kết nối database
 builder.Services.AddDbContext<ApplicationDbContext>(option =>
 {
     option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultSQLConnection"));
 });
+// sử dụng caching
+builder.Services.AddResponseCaching();
+
+builder.Services.AddControllers(option =>
+{
+    option.CacheProfiles.Add("Default30",
+        new CacheProfile()
+        {
+            Duration = 30
+        });
+});
+
+/// đăng kí DL
 builder.Services.AddScoped<IVillaRepository, VillaRepository>();
 builder.Services.AddScoped<IVillaNumberRepository, VillaNumberRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+// mapper
 builder.Services.AddAutoMapper(typeof(MappingConfig));
+
+// chia versiong
 builder.Services.AddApiVersioning(options => {
     options.AssumeDefaultVersionWhenUnspecified = true;
     options.DefaultApiVersion = new ApiVersion(1, 0);
     options.ReportApiVersions = true;
 });
-
 builder.Services.AddVersionedApiExplorer(options =>
 {
     options.GroupNameFormat = "'v'VVV";
@@ -33,8 +50,8 @@ builder.Services.AddVersionedApiExplorer(options =>
 });
 
 
+// key Secret
 var key = builder.Configuration.GetValue<string>("ApiSettings:Secret");
-
 builder.Services.AddAuthentication(x =>
 {
 	x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -58,10 +75,13 @@ builder.Services.AddControllers(option =>
 {
     //option.ReturnHttpNotAcceptable = true;
 }).AddNewtonsoftJson().AddXmlDataContractSerializerFormatters();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddSwaggerGen(options =>
 {
+    // thiết lập option cho token nhanh
 	options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
 	{
 		Description =
@@ -90,6 +110,8 @@ builder.Services.AddSwaggerGen(options =>
 			new List<string>()
 		}
 	});
+
+    // chia version
     options.SwaggerDoc("v1", new OpenApiInfo
     {
         Version = "v1.0",
@@ -133,6 +155,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(options => {
+        // chia version trong UI
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "Magic_VillaV1");
         options.SwaggerEndpoint("/swagger/v2/swagger.json", "Magic_VillaV2");
     });

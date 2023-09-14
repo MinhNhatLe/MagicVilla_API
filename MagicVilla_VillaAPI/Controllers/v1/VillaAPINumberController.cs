@@ -13,6 +13,7 @@ namespace MagicVilla_VillaAPI.Controllers.v1
 {
     [Route("api/v{version:apiVersion}/VillaNumberAPI")]
     [ApiController]
+    //[ApiVersion("1.0", Deprecated = true)]
     [ApiVersion("1.0")]
     public class VillaAPINumberController : ControllerBase
     {
@@ -28,11 +29,12 @@ namespace MagicVilla_VillaAPI.Controllers.v1
             _dbVilla = dbVilla;
             _reponse = new();
         }
-        [HttpGet]
+        [HttpGet("GetString")]
         public IEnumerable<string> Get()
         {
             return new string[] { "value1", "value2" };
         }
+
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<APIReponse>> GetVillaNumbers()
