@@ -29,9 +29,9 @@ namespace MagicVilla_VillaAPI.Repository
             _userManager = userManager;
             _roleManager = roleManager;
         }
-		public bool IsUniqueUser(string name)
+		public bool IsUniqueUser(string username)
 		{
-			var user = _db.LocalUsers.FirstOrDefault(x => x.UserName == name);
+			var user = _db.ApplicationUsers.FirstOrDefault(x => x.UserName == username);
 			if (user == null)
 			{
 				return true;
@@ -72,7 +72,8 @@ namespace MagicVilla_VillaAPI.Repository
 				// mô tả subject cho nó
 				Subject = new ClaimsIdentity(new Claim[]
 				{
-					new Claim(ClaimTypes.Name, user.Id.ToString()),
+					//new Claim(ClaimTypes.Name, user.Id.ToString()),
+					new Claim(ClaimTypes.Name, user.UserName.ToString()),
 					new Claim(ClaimTypes.Role, roles.FirstOrDefault())
 				}),
 				// đặt thời hạn
@@ -86,7 +87,7 @@ namespace MagicVilla_VillaAPI.Repository
 			{
 				User = _mapper.Map<UserDTO>(user),
 				Token = tokenHandler.WriteToken(token),
-				Role = roles.FirstOrDefault(),
+				//Role = roles.FirstOrDefault(),
 			};
 			return loginResponseDTO;
 		}
