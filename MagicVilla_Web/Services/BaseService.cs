@@ -15,7 +15,8 @@ namespace MagicVilla_Web.Services
         {
             this.responseModel = new();
             this.httpClient = httpClient;
-        }
+
+		}
 
         public async Task<T> SendAsync<T>(APIRequest apiRequest)
         {
@@ -49,8 +50,12 @@ namespace MagicVilla_Web.Services
 
                 }
                 HttpResponseMessage apiResponse = null;
+                if (!string.IsNullOrEmpty(apiRequest.Token))
+                {
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiRequest.Token);
+                }
 
-				apiResponse = await client.SendAsync(message);
+                apiResponse = await client.SendAsync(message);
 
 				var apiContent = await apiResponse.Content.ReadAsStringAsync();
 				try
