@@ -27,13 +27,14 @@ namespace MagicVilla_Web.Services
                 message.Headers.Add("Accept", "application/json");
                 message.RequestUri = new Uri(apiRequest.Url);
 
+                /// Này là request
                 //Data will not be null in POST/PUT HTTP Calls
-                if(apiRequest.Data != null)
+                if(apiRequest.Data != null)// Không được để data request lên là null
                 {
                     message.Content = new StringContent(JsonConvert.SerializeObject(apiRequest.Data),
                         Encoding.UTF8, "application/json");
                 }
-                switch (apiRequest.ApiType)
+                switch (apiRequest.ApiType) // setup type để request lên
                 {
                     case SD.ApiType.POST:
                         message.Method = HttpMethod.Post;
@@ -49,14 +50,20 @@ namespace MagicVilla_Web.Services
                         break;
 
                 }
+
                 HttpResponseMessage apiResponse = null;
-                if (!string.IsNullOrEmpty(apiRequest.Token))
+                if (!string.IsNullOrEmpty(apiRequest.Token)) // kiểm tra nếu có token thì để nó lên phần header
                 {
                     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiRequest.Token);
                 }
 
-                apiResponse = await client.SendAsync(message);
 
+
+
+
+
+                // này là reponse
+                apiResponse = await client.SendAsync(message);
 				var apiContent = await apiResponse.Content.ReadAsStringAsync();
 				try
 				{

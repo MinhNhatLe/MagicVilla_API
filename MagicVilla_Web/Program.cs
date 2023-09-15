@@ -1,4 +1,4 @@
-using MagicVilla_Web;
+﻿using MagicVilla_Web;
 using MagicVilla_Web.Services.IServices;
 using MagicVilla_Web.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -8,18 +8,24 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddAutoMapper(typeof(MappingConfig));
 
+// consume API using HTTPClient vào Villa
 builder.Services.AddHttpClient<IVillaService, VillaService>();
 builder.Services.AddScoped<IVillaService, VillaService>();
 
+// consume API using HTTPClient vào Auth
 builder.Services.AddHttpClient<IAuthService, AuthService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
+// consume API using HTTPClient vào VillaNumber
 builder.Services.AddHttpClient<IVillaNumberService, VillaNumberService>();
 builder.Services.AddScoped<IVillaNumberService, VillaNumberService>();
 
+// cấu hình cache
 builder.Services.AddDistributedMemoryCache();
+
+// cấu hình authentication
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 			  .AddCookie(options =>
 			  {
@@ -29,6 +35,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 				  options.AccessDeniedPath = "/Auth/AccessDenied";
 				  options.SlidingExpiration = true;
 			  });
+
+// cấu hình session
 builder.Services.AddSession(options =>
 {
 	options.IdleTimeout = TimeSpan.FromMinutes(100);
@@ -56,7 +64,9 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.UseSession();
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
