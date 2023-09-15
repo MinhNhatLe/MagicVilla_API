@@ -41,8 +41,8 @@ namespace MagicVilla_VillaAPI.Controllers.v1
         {
             try
             {
-                IEnumerable<VillaNumber> villaNumberList = await _dbVillaNumber.GetAllAsync(includeProperties: "Villa");
-                _reponse.Result = _mapper.Map<List<VillaNumberDTO>>(villaNumberList);
+                IEnumerable<VillaNumber> villaNumberList = await _dbVillaNumber.GetAllAsync(includeProperties: "Villa"); // lấy toàn bộ danh sách VillaNumber bao gồm include Villa
+                _reponse.Result = _mapper.Map<List<VillaNumberDTO>>(villaNumberList); // map vào danh sách này VillaNumberDTO để hiển thị
                 _reponse.StatusCode = HttpStatusCode.OK;
                 return Ok(_reponse);
             }
@@ -56,6 +56,7 @@ namespace MagicVilla_VillaAPI.Controllers.v1
             }
             return _reponse;
         }
+
         [HttpGet("{id:int}", Name = "GetVillaNumber")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -99,27 +100,32 @@ namespace MagicVilla_VillaAPI.Controllers.v1
         {
             try
             {
+                // kiểm tra xem cái VillaNo của VillaNumber nó có trùng không
+                // nếu trùng báo lỗi rồi
                 if (await _dbVillaNumber.GetAsync(u => u.VillaNo == createNumberDTO.VillaNo) != null)
                 {
                     ModelState.AddModelError("ErrorMessages", "VillaNumber already exists");
                     _reponse.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_reponse);
                 }
+
+                // nếu VillaID nó nhập null hoặc kh có trong data thì báo lỗi
                 if (await _dbVilla.GetAsync(u => u.Id == createNumberDTO.VillaID) == null)
                 {
                     ModelState.AddModelError("ErrorMessages", "Villa ID is invalid");
                     _reponse.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_reponse);
                 }
-                if (createNumberDTO == null)
+                if (createNumberDTO == null) // không nhập gì cũng lỗi
                 {
                     _reponse.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_reponse);
                 }
-                VillaNumber villaNumber = _mapper.Map<VillaNumber>(createNumberDTO);
+                VillaNumber villaNumber = _mapper.Map<VillaNumber>(createNumberDTO); // map sang VillaNumber để tạo và lưu
                 await _dbVillaNumber.CreateAsync(villaNumber);
                 await _dbVillaNumber.SaveAsync();
-                _reponse.Result = _mapper.Map<VillaNumberDTO>(villaNumber);
+
+                _reponse.Result = _mapper.Map<VillaNumberDTO>(villaNumber); // map lại VillaNumberDTO để hiển thị
                 _reponse.StatusCode = HttpStatusCode.Created;
                 return CreatedAtRoute("GetVillaNumber", new { id = villaNumber.VillaNo }, _reponse);
             }
@@ -142,7 +148,7 @@ namespace MagicVilla_VillaAPI.Controllers.v1
         {
             try
             {
-                if (id == 0)
+                if (id == 0) // id nhập vào = 0 báo lỗi
                 {
                     _reponse.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_reponse);
@@ -153,7 +159,6 @@ namespace MagicVilla_VillaAPI.Controllers.v1
                     _reponse.StatusCode = HttpStatusCode.NotFound;
                     return NotFound(_reponse);
                 }
-                //VillaStore.villaList.Remove(villa);
                 await _dbVillaNumber.RemoveAsync(villa);
                 await _dbVillaNumber.SaveAsync();
                 _reponse.StatusCode = HttpStatusCode.NoContent;
@@ -188,9 +193,10 @@ namespace MagicVilla_VillaAPI.Controllers.v1
                     _reponse.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_reponse);
                 }
-                var model = _mapper.Map<VillaNumber>(updateNumberDTO);
+                var model = _mapper.Map<VillaNumber>(updateNumberDTO); // Map sang VillaNumber để lưu
                 await _dbVillaNumber.UpdateAsync(model);
                 await _dbVillaNumber.SaveAsync();
+
                 _reponse.Result = HttpStatusCode.NoContent;
                 _reponse.IsSuccess = true;
                 return Ok(_reponse);

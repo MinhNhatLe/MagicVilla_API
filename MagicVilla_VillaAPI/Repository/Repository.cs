@@ -48,11 +48,11 @@ namespace MagicVilla_VillaAPI.Repository
             int pageSize = 0, int pageNumber = 1)
         {
             IQueryable<T> query = dbSet;
-            if (filter != null)
+            if (filter != null) // nếu filter khác null thì filter theo
             {
                 query = query.Where(filter);
             }
-            if (pageSize > 0)
+            if (pageSize > 0) // phân trang
             {
                 if (pageSize > 100)
                 {

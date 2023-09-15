@@ -36,16 +36,15 @@ namespace MagicVilla_VillaAPI.Controllers.v1
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        // này là lưu cache trong vòng 30
-        //[ResponseCache(Duration = 30)]
+        //[ResponseCache(Duration = 30)] // này là lưu cache trong vòng 30
         //[ResponseCache(CacheProfileName = "Default30")]
         //[Authorize]
         public async Task<ActionResult<APIReponse>> GetVillas([FromQuery(Name = "filterOccupancy")]int? occupancy, [FromQuery(Name ="SearchName")]string? search, int pageSize = 0, int pageNumber = 1)
         {
             try
             {
-                IEnumerable<Villa> villaList;
-                if(occupancy > 0)
+                IEnumerable<Villa> villaList;// lấy danh sách Villa ra
+                if (occupancy > 0)
                 {
                     villaList = await _dbVilla.GetAllAsync(u => u.Occupancy == occupancy, pageSize: pageSize,
                         pageNumber: pageNumber);
@@ -55,15 +54,18 @@ namespace MagicVilla_VillaAPI.Controllers.v1
                     villaList = await _dbVilla.GetAllAsync(pageSize: pageSize,
                        pageNumber: pageNumber);
                 }
+
                 if (!string.IsNullOrEmpty(search))
                 {
                     villaList = villaList.Where(u => u.Name.ToLower().Contains(search.ToLower()));
                 }
 
+                // nó sẽ reponse header ra số bao nhiêu item và bao nhiêu số trang
                 Pagination pagination = new() { PageNumber = pageNumber, PageSize = pageSize };
                 Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(pagination));
 
-                _reponse.Result = _mapper.Map<List<VillaDTO>>(villaList);
+                // này là cốt lỗi của func này
+                _reponse.Result = _mapper.Map<List<VillaDTO>>(villaList); // map dữ liệu từ Villa ra VillaDTO để hiển thị
                 _reponse.StatusCode = HttpStatusCode.OK;
                 return Ok(_reponse);
             }
@@ -77,6 +79,8 @@ namespace MagicVilla_VillaAPI.Controllers.v1
             }
             return _reponse;
         }
+
+
         [HttpGet("{id:int}", Name = "GetVilla")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -130,48 +134,24 @@ namespace MagicVilla_VillaAPI.Controllers.v1
         {
             try
             {
-                //if (!ModelState.IsValid)
-                //{
-                //    return BadRequest(ModelState);
-                //}
-                // custom Validation
-                //if(VillaStore.villaList.FirstOrDefault(u => u.Name.ToLower() == createDTO.Name.ToLower()) != null)
-                if (await _dbVilla.GetAsync(u => u.Name.ToLower() == createDTO.Name.ToLower()) != null)
+                if (await _dbVilla.GetAsync(u => u.Name.ToLower() == createDTO.Name.ToLower()) != null)// nếu name villa trùng nhau báo lỗi
                 {
                     ModelState.AddModelError("ErrorMessages", "Villa already exists");
                     _reponse.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_reponse);
                 }
-                if (createDTO == null)
+                if (createDTO == null) // nếu để null báo lỗi
                 {
                     _reponse.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_reponse);
                 }
-                //if (villaDTO.Id > 0) 
-                //{
-                //    return StatusCode(StatusCodes.Status500InternalServerError);
-                //}
-                //createDTO.Id = VillaStore.villaList.OrderByDescending(u => u.Id).FirstOrDefault().Id + 1;
-                //createDTO.Id = _db.Villas.OrderByDescending(u => u.Id).FirstOrDefault().Id + 1;
-                //VillaStore.villaList.Add(villaDTO);
-                Villa villa = _mapper.Map<Villa>(createDTO);
-                //Villa model = new()
-                //{
-                //    Amenity = createDTO.Amenity,
-                //    Details = createDTO.Details,
-                //    //Id = createDTO.Id,
-                //    ImageUrl = createDTO.ImageUrl,
-                //    Name = createDTO.Name,
-                //    Occupancy = createDTO.Occupancy,
-                //    Rate = createDTO.Rate,
-                //    Sqft = createDTO.Sqft,
-                //    CreatedDate = DateTime.Now,
-                //};
+                Villa villa = _mapper.Map<Villa>(createDTO); // map dữ liệu data nhập vào villa để tạo & lưu
                 await _dbVilla.CreateAsync(villa);
                 await _dbVilla.SaveAsync();
-                _reponse.Result = _mapper.Map<VillaDTO>(villa);
+
+                _reponse.Result = _mapper.Map<VillaDTO>(villa);  // map dữ liệu villa mới tạo xong ra VillaDTO để hiển thị
                 _reponse.StatusCode = HttpStatusCode.Created;
-                return CreatedAtRoute("GetVilla", new { id = villa.Id }, _reponse);
+                return CreatedAtRoute("GetVilla", new { id = villa.Id }, _reponse); // tạo sang nó sẽ route sang GetVilla để hiển thị
             }
             catch (Exception ex)
             {
@@ -195,13 +175,13 @@ namespace MagicVilla_VillaAPI.Controllers.v1
         {
             try
             {
-                if (id == 0)
+                if (id == 0) // id =0 báo lỗi
                 {
                     _reponse.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_reponse);
                 }
                 //var villa = VillaStore.villaList.FirstOrDefault(u => u.Id == id);
-                var villa = await _dbVilla.GetAsync(u => u.Id == id);
+                var villa = await _dbVilla.GetAsync(u => u.Id == id); // kiểm tra id có = nhau hem?
                 if (villa == null)
                 {
                     _reponse.StatusCode = HttpStatusCode.NotFound;
@@ -224,6 +204,7 @@ namespace MagicVilla_VillaAPI.Controllers.v1
             }
             return _reponse;
         }
+
         [HttpPut("{id:int}", Name = "UpdateVilla")]
         [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -242,7 +223,7 @@ namespace MagicVilla_VillaAPI.Controllers.v1
                 //villa.Name = villaDTO.Name;
                 //villa.Rate = villaDTO.Rate;
                 //villa.Occupancy = villaDTO.Occupancy;
-                var model = _mapper.Map<Villa>(updateDTO);
+                var model = _mapper.Map<Villa>(updateDTO); // map dữ liệu vào Villa
                 //Villa model = new()
                 //{
                 //    Amenity = updateDTO.Amenity,
@@ -257,6 +238,7 @@ namespace MagicVilla_VillaAPI.Controllers.v1
                 //};
                 await _dbVilla.UpdateAsync(model);
                 await _dbVilla.SaveAsync();
+
                 _reponse.Result = HttpStatusCode.NoContent;
                 _reponse.IsSuccess = true;
                 return Ok(_reponse);

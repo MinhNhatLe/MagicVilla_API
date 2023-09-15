@@ -24,9 +24,14 @@ builder.Services.AddDbContext<ApplicationDbContext>(option =>
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
-// sử dụng caching
+// sử dụng caching // lưu vào bộ nhớ đệm
+// kiểu khi mình tìm kiếm gì đó nó sẽ lấy database. Cứ mỗi lần như thế nó lấy database mình ra hoài sẽ tốn RAM
+// vì thế sử dụng cache để lần đầu tìm kiếm nó sẽ lấy từ database ra. rồi lưu vào bộ nhớ đêm cache( mình set time bao nhiêu tùy mình)
+// sau đó khi tìm kiếm gì lại nó sẽ lấy từ bộ nhớ đệm cache ra khỏi mắc công vào database
+// nhưng cũng gặp trục trặc ở chổ ( nếu mình tìm kiếm gì đó nó sẽ lưu ở cache bộ nhớ đệm rồi, nhưng lỡ xóa sản phẩm gì đó đi, thì sau khi tìm kiếm thời gian trong cache nó chưa hết hạn
+// thì nó vẫn hiển thị ra )
 builder.Services.AddResponseCaching();
-
+//setup cache
 builder.Services.AddControllers(option =>
 {
     option.CacheProfiles.Add("Default30",
@@ -36,7 +41,7 @@ builder.Services.AddControllers(option =>
         });
 });
 
-/// đăng kí DL
+/// đăng kí DI
 builder.Services.AddScoped<IVillaRepository, VillaRepository>();
 builder.Services.AddScoped<IVillaNumberRepository, VillaNumberRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();

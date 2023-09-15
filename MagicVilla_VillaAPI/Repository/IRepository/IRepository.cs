@@ -3,6 +3,8 @@ using System.Linq.Expressions;
 
 namespace MagicVilla_VillaAPI.Repository.IRepository
 {
+    // tạo cái repository Generic Type(T) là kiểu dùng chung cho
+    // mấy cái repository chỉ truyền data vào và tái sử dụng lại
     public interface IRepository<T> where T : class
     {
         Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, string? includeProperties = null,

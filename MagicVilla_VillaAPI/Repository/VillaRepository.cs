@@ -11,7 +11,7 @@ namespace MagicVilla_VillaAPI.Repository
     {
         private readonly ApplicationDbContext _db;
 
-        public VillaRepository(ApplicationDbContext db) : base(db) // base ở đây ta có thể path từ trong Repository ra
+        public VillaRepository(ApplicationDbContext db) : base(db) // base ở đây ta có thể path từ trong Repository ra || lấy contructor ra
         {
             _db = db;
         }
