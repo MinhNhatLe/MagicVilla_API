@@ -5,6 +5,7 @@ using MagicVilla_Web.Services.IServices;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -39,7 +40,7 @@ namespace MagicVilla_Web.Controllers
 				var jwt = handler.ReadJwtToken(model.Token);
 
 				var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
-				identity.AddClaim(new Claim(ClaimTypes.Name, jwt.Claims.FirstOrDefault(u => u.Type == "name").Value));
+				identity.AddClaim(new Claim(ClaimTypes.Name, jwt.Claims.FirstOrDefault(u => u.Type == "unique_name").Value));
 				identity.AddClaim(new Claim(ClaimTypes.Role, jwt.Claims.FirstOrDefault(u => u.Type == "role").Value));
 				//identity.AddClaim(new Claim(ClaimTypes.Name, model.User.Name));
 				//identity.AddClaim(new Claim(ClaimTypes.Role, model.User.Role));
@@ -57,24 +58,40 @@ namespace MagicVilla_Web.Controllers
 			}
 		}
 
-		[HttpGet]
-		public IActionResult Register()
-		{
-			return View();
-		}
+        [HttpGet]
+        public IActionResult Register()
+        {
+            var roleList = new List<SelectListItem>()
+            {
+                  new SelectListItem{Text=SD.Admin,Value=SD.Admin},
+                new SelectListItem{Text=SD.Customer,Value=SD.Customer},
+            };
+            ViewBag.RoleList = roleList;
+            return View();
+        }
 
 
-		[HttpPost]
+        [HttpPost]
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> Register(RegisterationRequestDTO obj)
 		{
-			APIResponse result = await _authService.RegisterAsync<APIResponse>(obj);
+            if (string.IsNullOrEmpty(obj.Role))
+            {
+                obj.Role = SD.Customer;
+            }
+            APIResponse result = await _authService.RegisterAsync<APIResponse>(obj);
 			if (result != null && result.IsSuccess)
 			{
 				return RedirectToAction("Login");
 			}
-			return View();
-		}
+            var roleList = new List<SelectListItem>()
+            {
+                new SelectListItem{Text=SD.Admin,Value=SD.Admin},
+                new SelectListItem{Text=SD.Customer,Value=SD.Customer},
+            };
+            ViewBag.RoleList = roleList;
+            return View();
+        }
 
 
 		public async Task<IActionResult> Logout()

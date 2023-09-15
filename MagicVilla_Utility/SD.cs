@@ -10,5 +10,15 @@
             DELETE
         }
 		public static string SessionToken = "JWTToken";
-	}
+        public static string CurrentAPIVersion = "v2";
+        public const string Admin = "admin";
+        public const string Customer = "customer";
+
+        // dành chi iFormFile
+        public enum ContentType
+        {
+            Json,
+            MultipartFormData,
+        }
+    }
 }

@@ -29,11 +29,12 @@ builder.Services.AddResponseCaching();
 
 builder.Services.AddControllers(option =>
 {
-    option.CacheProfiles.Add("Default30",
-        new CacheProfile()
-        {
-            Duration = 30
-        });
+    //option.CacheProfiles.Add("Default30",
+    //    new CacheProfile()
+    //    {
+    //        Duration = 30
+    //    });
+    //option.ReturnHttpNotAcceptable=true;
 });
 
 /// đăng kí DL
@@ -163,10 +164,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(options => {
         // chia version trong UI
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Magic_VillaV1");
         options.SwaggerEndpoint("/swagger/v2/swagger.json", "Magic_VillaV2");
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Magic_VillaV1");
     });
 }
+
+app.UseStaticFiles();
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
