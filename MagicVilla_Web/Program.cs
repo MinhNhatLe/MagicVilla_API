@@ -2,18 +2,23 @@ using MagicVilla_Web;
 using MagicVilla_Web.Services.IServices;
 using MagicVilla_Web.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using MagicVilla_Web.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(u => u.Filters.Add(new AuthExceptionRedirection()));
 builder.Services.AddAutoMapper(typeof(MappingConfig));
 
 builder.Services.AddHttpClient<IVillaService, VillaService>();
 builder.Services.AddScoped<IVillaService, VillaService>();
 
+builder.Services.AddScoped<IBaseService, BaseService>();
+builder.Services.AddScoped<ITokenProvider, TokenProvider>();
+
 builder.Services.AddHttpClient<IAuthService, AuthService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
+builder.Services.AddSingleton<IApiMessageRequestBuilder, ApiMessageRequestBuilder>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 builder.Services.AddHttpClient<IVillaNumberService, VillaNumberService>();

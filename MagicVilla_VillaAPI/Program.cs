@@ -68,12 +68,13 @@ builder.Services.AddAuthentication(x =>
 	.AddJwtBearer(x => {
 		x.RequireHttpsMetadata = false;
 		x.SaveToken = true;
-		x.TokenValidationParameters = new TokenValidationParameters
-		{
-			ValidateIssuerSigningKey = true,
-			IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key)),
-			ValidateIssuer = false,
-			ValidateAudience = false
+        x.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key)),
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ClockSkew = TimeSpan.Zero,
 		};
 	});
 
