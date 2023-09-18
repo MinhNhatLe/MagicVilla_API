@@ -25,10 +25,10 @@ namespace MagicVilla_VillaAPI.Repository
             UserManager<ApplicationUser> userManager, IMapper mapper, RoleManager<IdentityRole> roleManager) 
 		{
 			_db = db;
-			secretKey = configuration.GetValue<string>("ApiSettings:Secret");
-            _mapper = mapper;
             _userManager = userManager;
             _roleManager = roleManager;
+			secretKey = configuration.GetValue<string>("ApiSettings:Secret");
+            _mapper = mapper;
         }
 		public bool IsUniqueUser(string username)
 		{
@@ -53,6 +53,7 @@ namespace MagicVilla_VillaAPI.Repository
 			//}
             var user = _db.ApplicationUsers.FirstOrDefault(u => u.UserName.ToLower() == loginRequestDTO.UserName.ToLower());
 			bool IsValid = await _userManager.CheckPasswordAsync(user, loginRequestDTO.Password);
+            
             if (user == null || IsValid == false)
             {
                 return new TokenDTO()
@@ -128,14 +129,11 @@ namespace MagicVilla_VillaAPI.Repository
 
         private async Task<string> GetAccessToken(ApplicationUser user, string jwtTokenId)
         {
-            //role identity
-            var roles = await _userManager.GetRolesAsync(user);
+            var roles = await _userManager.GetRolesAsync(user);//role identity
             // if user was found Generate JWT token
             var tokenHandler = new JwtSecurityTokenHandler();
-            // mã hóa key
-            var key = Encoding.ASCII.GetBytes(secretKey);
-            //mô tả token
-            var tokenDescriptor = new SecurityTokenDescriptor
+            var key = Encoding.ASCII.GetBytes(secretKey);// mã hóa key            
+            var tokenDescriptor = new SecurityTokenDescriptor//mô tả token
             {
                 // mô tả subject cho nó
                 Subject = new ClaimsIdentity(new Claim[]
@@ -209,6 +207,8 @@ namespace MagicVilla_VillaAPI.Repository
 
 
         }
+
+        // tạo mới refresh token
         private async Task<string> CreateNewRefreshToken(string userId, string tokenId)
         {
             RefreshToken refreshToken = new()
@@ -222,7 +222,7 @@ namespace MagicVilla_VillaAPI.Repository
 
             await _db.RefreshTokens.AddAsync(refreshToken);
             await _db.SaveChangesAsync();
-            return refreshToken.Refresh_Token;
+            return refreshToken.Refresh_Token; // trả về refreshtoken
         }        
 
         public async Task RevokeRefreshToken(TokenDTO tokenDTO)
